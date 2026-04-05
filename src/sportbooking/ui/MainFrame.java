@@ -4,6 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 import sportbooking.database.DatabaseHelper;
 import sportbooking.model.User;
+import sportbooking.ui.PanelLapanganPelanggan;
 
 public class MainFrame extends JFrame {
 
@@ -22,6 +23,7 @@ public class MainFrame extends JFrame {
     private PanelLaporanPendapatan panelLaporanPendapatan;
     private PanelLaporanPelanggan panelLaporanPelanggan;
     private PanelLaporanLapangan panelLaporanLapangan;
+    private PanelLapanganPelanggan panelLapanganPelanggan;
 
     private User currentUser;
 
@@ -61,18 +63,23 @@ public class MainFrame extends JFrame {
         panelLaporanPendapatan = new PanelLaporanPendapatan();
         panelLaporanPelanggan = new PanelLaporanPelanggan();
         panelLaporanLapangan = new PanelLaporanLapangan();
+        panelLapanganPelanggan = new PanelLapanganPelanggan(currentUser);
 
-        contentPanel.add(panelDashboard, "dashboard");
-        contentPanel.add(panelReservasi, "reservasi");
-        contentPanel.add(panelLapangan, "lapangan");
-        contentPanel.add(panelRiwayat, "riwayat");
-        contentPanel.add(panelPelanggan, "pelanggan");
-        contentPanel.add(panelUser, "user");
-        contentPanel.add(panelPembayaran, "pembayaran");
-        contentPanel.add(panelLaporanReservasi, "lap_reservasi");
-        contentPanel.add(panelLaporanPendapatan, "lap_pendapatan");
-        contentPanel.add(panelLaporanPelanggan, "lap_pelanggan");
-        contentPanel.add(panelLaporanLapangan, "lap_lapangan");
+        if (currentUser != null && "Pelanggan".equalsIgnoreCase(currentUser.getRole())) {
+            contentPanel.add(panelLapanganPelanggan, "lapangan_pelanggan");
+        } else {
+            contentPanel.add(panelDashboard, "dashboard");
+            contentPanel.add(panelReservasi, "reservasi");
+            contentPanel.add(panelLapangan, "lapangan");
+            contentPanel.add(panelRiwayat, "riwayat");
+            contentPanel.add(panelPelanggan, "pelanggan");
+            contentPanel.add(panelUser, "user");
+            contentPanel.add(panelPembayaran, "pembayaran");
+            contentPanel.add(panelLaporanReservasi, "lap_reservasi");
+            contentPanel.add(panelLaporanPendapatan, "lap_pendapatan");
+            contentPanel.add(panelLaporanPelanggan, "lap_pelanggan");
+            contentPanel.add(panelLaporanLapangan, "lap_lapangan");
+        }
 
         // Layout
         setLayout(new BorderLayout());
@@ -181,22 +188,26 @@ public class MainFrame extends JFrame {
             }
         });
 
-        JMenuItem miKeluar = new JMenuItem("Keluar");
-        miKeluar.setFont(itemFont);
-        miKeluar.addActionListener(e -> {
-            int confirm = JOptionPane.showConfirmDialog(this, "Yakin ingin keluar dari aplikasi?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) System.exit(0);
-        });
 
         menuFile.add(miLogout);
-        menuFile.addSeparator();
-        menuFile.add(miKeluar);
 
-        menuBar.add(menuDashboard);
-        menuBar.add(menuMaster);
-        menuBar.add(menuTransaksi);
-        menuBar.add(menuLaporan);
-        menuBar.add(menuFile);
+        if (currentUser != null && "Pelanggan".equalsIgnoreCase(currentUser.getRole())) {
+            JMenu menuLapangan = new JMenu("Lapangan");
+            menuLapangan.setFont(menuFont);
+            menuLapangan.setForeground(menuColor);
+            JMenuItem miLapanganReady = new JMenuItem("Lihat Lapangan Ready");
+            miLapanganReady.setFont(itemFont);
+            miLapanganReady.addActionListener(e -> { panelLapanganPelanggan.refreshData(); showPanel("lapangan_pelanggan"); });
+            menuLapangan.add(miLapanganReady);
+            menuBar.add(menuLapangan);
+            menuBar.add(menuFile);
+        } else {
+            menuBar.add(menuDashboard);
+            menuBar.add(menuMaster);
+            menuBar.add(menuTransaksi);
+            menuBar.add(menuLaporan);
+            menuBar.add(menuFile);
+        }
 
         return menuBar;
     }

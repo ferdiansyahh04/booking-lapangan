@@ -75,6 +75,7 @@ public class LoginFrame extends JDialog {
         formPanel.add(txtPassword, gbc);
 
         // Buttons
+
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 0));
         btnPanel.setBackground(Color.WHITE);
 
@@ -88,6 +89,16 @@ public class LoginFrame extends JDialog {
         btnLogin.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
         btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
+        JButton btnRegister = new JButton("Register");
+        btnRegister.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnRegister.setBackground(new Color(52, 152, 219));
+        btnRegister.setForeground(Color.WHITE);
+        btnRegister.setFocusPainted(false);
+        btnRegister.setContentAreaFilled(false);
+        btnRegister.setOpaque(true);
+        btnRegister.setBorder(BorderFactory.createEmptyBorder(10, 35, 10, 35));
+        btnRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         JButton btnBatal = new JButton("Keluar");
         btnBatal.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnBatal.setBackground(new Color(231, 76, 60));
@@ -99,6 +110,7 @@ public class LoginFrame extends JDialog {
         btnBatal.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btnPanel.add(btnLogin);
+        btnPanel.add(btnRegister);
         btnPanel.add(btnBatal);
 
         gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
@@ -118,7 +130,12 @@ public class LoginFrame extends JDialog {
         setContentPane(mainPanel);
 
         // Events
+
         btnLogin.addActionListener(e -> doLogin());
+        btnRegister.addActionListener(e -> {
+            RegisterFrame reg = new RegisterFrame(SwingUtilities.getWindowAncestor(this));
+            reg.setVisible(true);
+        });
         btnBatal.addActionListener(e -> {
             loggedInUser = null;
             dispose();
