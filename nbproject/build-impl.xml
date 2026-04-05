@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:j2seproject1="http://www.netbeans.org/ns/j2se-project/1" xmlns:j2seproject3="http://www.netbeans.org/ns/j2se-project/3" xmlns:jaxrpc="http://www.netbeans.org/ns/j2se-project/jax-rpc" basedir=".." default="default" name="SportBooking-impl">
+    <target name="default" depends="jar" description="Build and package."/>
+
+    <target name="-pre-init"/>
+    <target name="-init-private"/>
+    
+    <target name="-init-user"/>
+    
+    <target name="-init-project">
+        <property file="nbproject/project.properties"/>
+    </target>
+    
+    <target name="-init-macrodef-property"/>
+    
+    <target name="init" depends="-pre-init,-init-private,-init-user,-init-project,-init-macrodef-property"/>
+
+    <target name="compile" depends="init" description="Compile project.">
+        <mkdir dir="${build.classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${build.classes.dir}" 
+               source="${javac.source}" target="${javac.target}"
+               encoding="${source.encoding}" includeantruntime="false">
+            <classpath>
+                <pathelement path="${javac.classpath}"/>
+            </classpath>
+        </javac>
+    </target>
+
+    <target name="jar" depends="compile" description="Build JAR.">
+        <mkdir dir="${dist.dir}"/>
+        <jar destfile="${dist.jar}" basedir="${build.classes.dir}">
+            <manifest>
+                <attribute name="Main-Class" value="${main.class}"/>
+                <attribute name="Class-Path" value="lib/sqlite-jdbc-3.36.0.3.jar"/>
+            </manifest>
+        </jar>
+        <copy todir="${dist.dir}/lib" failonerror="false">
+            <fileset dir="lib" includes="*.jar"/>
+        </copy>
+    </target>
+
+    <target name="run" depends="compile" description="Run project.">
+        <java classname="${main.class}" fork="true">
+            <classpath>
+                <pathelement path="${build.classes.dir}"/>
+                <pathelement path="${javac.classpath}"/>
+            </classpath>
+        </java>
+    </target>
+
+    <target name="clean" description="Clean build products.">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+</project>

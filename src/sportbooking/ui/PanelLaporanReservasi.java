@@ -1,0 +1,168 @@
+package sportbooking.ui;
+
+import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import sportbooking.database.DatabaseHelper;
+import sportbooking.model.Reservasi;
+
+public class PanelLaporanReservasi extends JPanel {
+
+    private JComboBox<String> cmbDari, cmbSampai;
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private JLabel lblTotal;
+
+    public PanelLaporanReservasi() {
+        initComponents();
+    }
+
+    private void initComponents() {
+        setLayout(new BorderLayout(10, 10));
+        setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        setBackground(new Color(245, 248, 250));
+
+        // Filter
+        JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 5));
+        filterPanel.setBackground(Color.WHITE);
+        filterPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createTitledBorder(
+                        BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                        " Laporan Reservasi per Periode ",
+                        javax.swing.border.TitledBorder.LEFT,
+                        javax.swing.border.TitledBorder.TOP,
+                        new Font("Segoe UI", Font.BOLD, 13),
+                        new Color(44, 62, 80)
+                ),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)
+        ));
+
+        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
+
+        cmbDari = new JComboBox<>(); cmbDari.setFont(fieldFont);
+        cmbSampai = new JComboBox<>(); cmbSampai.setFont(fieldFont);
+        populateDates(cmbDari, -30);
+        populateDates(cmbSampai, -30);
+        cmbSampai.setSelectedIndex(0);
+
+        JButton btnTampilkan = createButton("Tampilkan", new Color(41, 128, 185));
+        JButton btnCetak = createButton("Cetak", new Color(142, 68, 173));
+
+        filterPanel.add(new JLabel("Dari:"));
+        filterPanel.add(cmbDari);
+        filterPanel.add(new JLabel("Sampai:"));
+        filterPanel.add(cmbSampai);
+        filterPanel.add(btnTampilkan);
+        filterPanel.add(btnCetak);
+
+        // Table
+        String[] columns = {"No", "Tgl Booking", "Nama Pemesan", "No. Telepon", "Lapangan", "Jenis",
+                "Jam", "Durasi", "Total Harga", "Status"};
+        tableModel = new DefaultTableModel(columns, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) { return false; }
+        };
+        table = new JTable(tableModel);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 12));
+        table.setRowHeight(26);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.getTableHeader().setBackground(new Color(33, 97, 140));
+        table.getTableHeader().setForeground(Color.WHITE);
+        table.getColumnModel().getColumn(0).setMaxWidth(40);
+
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
+        table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
+        table.getColumnModel().getColumn(7).setCellRenderer(centerRenderer);
+        table.getColumnModel().getColumn(9).setCellRenderer(centerRenderer);
+
+        JScrollPane scrollPane = new JScrollPane(table);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+
+        // Summary
+        JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
+        summaryPanel.setBackground(Color.WHITE);
+        summaryPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(8, 15, 8, 15)
+        ));
+        lblTotal = new JLabel("Total: 0 reservasi | Total Harga: Rp 0");
+        lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblTotal.setForeground(new Color(44, 62, 80));
+        summaryPanel.add(lblTotal);
+
+        // Events
+        btnTampilkan.addActionListener(e -> tampilkanData());
+        btnCetak.addActionListener(e -> cetakLaporan());
+
+        add(filterPanel, BorderLayout.NORTH);
+        add(scrollPane, BorderLayout.CENTER);
+        add(summaryPanel, BorderLayout.SOUTH);
+    }
+
+    private void populateDates(JComboBox<String> cmb, int daysBack) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        for (int i = 0; i <= Math.abs(daysBack) + 30; i++) {
+            Calendar c = (Calendar) cal.clone();
+            c.add(Calendar.DAY_OF_MONTH, -Math.abs(daysBack) + i);
+            cmb.addItem(sdf.format(c.getTime()));
+        }
+        cmb.setSelectedIndex(0);
+    }
+
+    private JButton createButton(String text, Color bgColor) {
+        JButton btn = new JButton(text);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setContentAreaFilled(false);
+        btn.setOpaque(true);
+        btn.setBorder(BorderFactory.createEmptyBorder(8, 20, 8, 20));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private void tampilkanData() {
+        String dari = (String) cmbDari.getSelectedItem();
+        String sampai = (String) cmbSampai.getSelectedItem();
+        if (dari == null || sampai == null) return;
+
+        tableModel.setRowCount(0);
+        List<Reservasi> list = DatabaseHelper.getInstance().getReservasiByPeriode(dari, sampai);
+        double totalHarga = 0;
+        int no = 1;
+        for (Reservasi r : list) {
+            tableModel.addRow(new Object[]{
+                no++, r.getTanggal(), r.getNamaPemesan(), r.getNoTelepon(),
+                r.getNamaLapangan(), r.getJenisLapangan(),
+                r.getJamMulai() + "-" + r.getJamSelesai(),
+                r.getDurasiJam() + " jam",
+                "Rp " + String.format("%,.0f", r.getTotalHarga()),
+                r.getStatus()
+            });
+            totalHarga += r.getTotalHarga();
+        }
+        lblTotal.setText("Total: " + list.size() + " reservasi | Total Harga: Rp " + String.format("%,.0f", totalHarga));
+    }
+
+    private void cetakLaporan() {
+        try {
+            table.print(JTable.PrintMode.FIT_WIDTH,
+                    new java.text.MessageFormat("Laporan Reservasi - Sport Booking System"),
+                    new java.text.MessageFormat("Halaman {0}"));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencetak laporan!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    public void refreshData() {
+        tampilkanData();
+    }
+}
