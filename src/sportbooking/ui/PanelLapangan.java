@@ -96,24 +96,17 @@ public class PanelLapangan extends JPanel {
             }
         };
         table = new JTable(tableModel);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.setRowHeight(28);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(33, 97, 140));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.setSelectionBackground(new Color(214, 234, 248));
         table.getColumnModel().getColumn(0).setMaxWidth(50);
         table.getColumnModel().getColumn(3).setPreferredWidth(120);
 
         // Center align
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        DefaultTableCellRenderer centerRenderer = TableStyler.createCenterRenderer();
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        TableStyler.styleTable(table, scrollPane, 30);
 
         // Events
         table.getSelectionModel().addListSelectionListener(e -> {

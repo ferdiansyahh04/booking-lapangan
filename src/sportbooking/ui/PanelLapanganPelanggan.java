@@ -104,19 +104,7 @@ public class PanelLapanganPelanggan extends JPanel {
         };
 
         table = new JTable(tableModel);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.setRowHeight(32);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        table.setGridColor(new Color(220, 220, 220));
-        table.setShowHorizontalLines(true);
-        table.setShowVerticalLines(false);
-        table.setSelectionBackground(new Color(214, 234, 248));
-        table.setSelectionForeground(Color.BLACK);
-
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(33, 97, 140));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.getTableHeader().setPreferredSize(new Dimension(0, 36));
 
         table.getColumnModel().getColumn(0).setMaxWidth(50);
         table.getColumnModel().getColumn(0).setMinWidth(40);
@@ -125,15 +113,13 @@ public class PanelLapanganPelanggan extends JPanel {
         table.getColumnModel().getColumn(3).setPreferredWidth(130);
         table.getColumnModel().getColumn(4).setPreferredWidth(100);
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        DefaultTableCellRenderer centerRenderer = TableStyler.createCenterRenderer();
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(new StatusCellRenderer());
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        TableStyler.styleTable(table, scrollPane, 32);
 
         JPanel bottomPanel = new JPanel(new BorderLayout());
         bottomPanel.setBackground(new Color(245, 248, 250));

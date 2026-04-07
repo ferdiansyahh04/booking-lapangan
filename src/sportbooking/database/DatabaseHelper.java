@@ -132,7 +132,7 @@ public class DatabaseHelper {
 
     public List<Lapangan> getAllLapangan() {
         List<Lapangan> list = new ArrayList<>();
-        String sql = "SELECT * FROM lapangan ORDER BY jenis, nama";
+        String sql = "SELECT * FROM lapangan ORDER BY id ASC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) list.add(mapLapangan(rs));
         } catch (SQLException e) { logError("Gagal mengambil data lapangan", e); }
@@ -141,7 +141,7 @@ public class DatabaseHelper {
 
     public List<Lapangan> getLapanganByJenis(String jenis) {
         List<Lapangan> list = new ArrayList<>();
-        String sql = "SELECT * FROM lapangan WHERE jenis = ? AND status = 'Tersedia' ORDER BY nama";
+        String sql = "SELECT * FROM lapangan WHERE jenis = ? AND status = 'Tersedia' ORDER BY id ASC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, jenis);
             try (ResultSet rs = pstmt.executeQuery()) { while (rs.next()) list.add(mapLapangan(rs)); }
@@ -407,7 +407,7 @@ public class DatabaseHelper {
 
     public List<Pelanggan> getAllPelanggan() {
         List<Pelanggan> list = new ArrayList<>();
-        String sql = "SELECT * FROM pelanggan ORDER BY nama";
+        String sql = "SELECT * FROM pelanggan ORDER BY id ASC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) list.add(mapPelanggan(rs));
         } catch (SQLException e) { logError("Gagal mengambil data pelanggan", e); }

@@ -7,6 +7,7 @@ import java.util.List;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
 import sportbooking.database.DatabaseHelper;
 
 public class PanelLaporanLapangan extends JPanel {
@@ -15,6 +16,8 @@ public class PanelLaporanLapangan extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
     private JLabel lblTotal;
+    private JTextField txtSearch;
+    private TableRowSorter<DefaultTableModel> rowSorter;
 
     public PanelLaporanLapangan() {
         initComponents();
@@ -40,15 +43,19 @@ public class PanelLaporanLapangan extends JPanel {
                 BorderFactory.createEmptyBorder(10, 10, 10, 10)
         ));
 
-        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 13);
-        cmbDari = new JComboBox<>(); cmbDari.setFont(fieldFont);
-        cmbSampai = new JComboBox<>(); cmbSampai.setFont(fieldFont);
+        cmbDari = new JComboBox<>();
+        cmbSampai = new JComboBox<>();
+        DateComboBoxStyler.style(cmbDari);
+        DateComboBoxStyler.style(cmbSampai);
         populateDates(cmbDari);
         populateDates(cmbSampai);
         cmbSampai.setSelectedIndex(cmbSampai.getItemCount() - 1);
 
         JButton btnTampilkan = createButton("Tampilkan", new Color(41, 128, 185));
         JButton btnCetak = createButton("Cetak", new Color(142, 68, 173));
+        JButton btnPdf = createButton("Export PDF", new Color(192, 57, 43));
+        JButton btnExcel = createButton("Export Excel", new Color(39, 174, 96));
+        txtSearch = ReportTableHelper.createSearchField();
 
         filterPanel.add(new JLabel("Dari:"));
         filterPanel.add(cmbDari);
@@ -56,6 +63,10 @@ public class PanelLaporanLapangan extends JPanel {
         filterPanel.add(cmbSampai);
         filterPanel.add(btnTampilkan);
         filterPanel.add(btnCetak);
+        filterPanel.add(btnPdf);
+        filterPanel.add(btnExcel);
+        filterPanel.add(new JLabel("Cari:"));
+        filterPanel.add(txtSearch);
 
         // Table
         String[] columns = {"No", "Nama Lapangan", "Jenis", "Status", "Total Booking", "Total Jam Pakai"};
@@ -64,23 +75,19 @@ public class PanelLaporanLapangan extends JPanel {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.setRowHeight(28);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(33, 97, 140));
-        table.getTableHeader().setForeground(Color.WHITE);
         table.getColumnModel().getColumn(0).setMaxWidth(40);
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        DefaultTableCellRenderer centerRenderer = TableStyler.createCenterRenderer();
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(2).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(4).setCellRenderer(centerRenderer);
         table.getColumnModel().getColumn(5).setCellRenderer(centerRenderer);
+        rowSorter = ReportTableHelper.installSearchFilter(tableModel, txtSearch, 1, 2, 3);
+        table.setRowSorter(rowSorter);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        TableStyler.styleTable(table, scrollPane, 30);
 
         // Summary
         JPanel summaryPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 5));
@@ -97,6 +104,8 @@ public class PanelLaporanLapangan extends JPanel {
         // Events
         btnTampilkan.addActionListener(e -> tampilkanData());
         btnCetak.addActionListener(e -> cetakLaporan());
+        btnPdf.addActionListener(e -> ReportExporter.exportTableToPdf(this, table, "Laporan Penggunaan Lapangan"));
+        btnExcel.addActionListener(e -> ReportExporter.exportTableToExcel(this, table, "Laporan Penggunaan Lapangan"));
 
         add(filterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);

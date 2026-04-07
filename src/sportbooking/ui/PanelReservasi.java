@@ -12,6 +12,11 @@ import sportbooking.model.Reservasi;
 
 public class PanelReservasi extends JPanel {
 
+    private static final Color BTN_PRIMARY = new Color(25, 135, 84);
+    private static final Color BTN_PRIMARY_HOVER = new Color(20, 108, 67);
+    private static final Color BTN_SECONDARY = new Color(108, 117, 125);
+    private static final Color BTN_SECONDARY_HOVER = new Color(84, 91, 98);
+
     private MainFrame mainFrame;
     private JTextField txtNamaPemesan;
     private JTextField txtNoTelepon;
@@ -137,27 +142,13 @@ public class PanelReservasi extends JPanel {
         totalBox.add(lblTotalTitle);
         totalBox.add(lblTotalHarga);
 
-        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
         btnPanel.setBackground(Color.WHITE);
 
-        JButton btnReset = new JButton("Reset Form");
-        btnReset.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnReset.setBackground(new Color(149, 165, 166));
-        btnReset.setForeground(Color.WHITE);
-        btnReset.setFocusPainted(false);
-        btnReset.setBorder(BorderFactory.createEmptyBorder(10, 25, 10, 25));
-        btnReset.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        JButton btnBooking = new JButton("BOOKING SEKARANG");
-        btnBooking.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btnBooking.setBackground(new Color(39, 174, 96));
-        btnBooking.setForeground(Color.WHITE);
-        btnBooking.setFocusPainted(false);
-        btnBooking.setBorder(BorderFactory.createEmptyBorder(10, 30, 10, 30));
-        btnBooking.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        RoundedButton btnReset = createActionButton("Reset Form", BTN_SECONDARY, BTN_SECONDARY_HOVER, new Dimension(150, 42), 13);
+        RoundedButton btnBooking = createActionButton("Booking Sekarang", BTN_PRIMARY, BTN_PRIMARY_HOVER, new Dimension(210, 44), 14);
 
         btnPanel.add(btnReset);
-        btnPanel.add(Box.createHorizontalStrut(10));
         btnPanel.add(btnBooking);
 
         totalPanel.add(totalBox, BorderLayout.WEST);
@@ -181,6 +172,26 @@ public class PanelReservasi extends JPanel {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
 
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private RoundedButton createActionButton(String text, Color baseColor, Color hoverColor, Dimension size, int fontSize) {
+        RoundedButton button = new RoundedButton(text, baseColor, hoverColor, 18);
+        button.setButtonSize(size);
+        button.setButtonFontSize(fontSize);
+        button.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseEntered(java.awt.event.MouseEvent e) {
+                if (button.isEnabled()) {
+                    button.setHover(true);
+                }
+            }
+
+            @Override
+            public void mouseExited(java.awt.event.MouseEvent e) {
+                button.setHover(false);
+            }
+        });
+        return button;
     }
 
     private void addSectionHeader(JPanel panel, GridBagConstraints gbc, int row, String text) {

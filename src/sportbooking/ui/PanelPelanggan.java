@@ -79,20 +79,13 @@ public class PanelPelanggan extends JPanel {
             public boolean isCellEditable(int row, int column) { return false; }
         };
         table = new JTable(tableModel);
-        table.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        table.setRowHeight(28);
-        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        table.getTableHeader().setBackground(new Color(33, 97, 140));
-        table.getTableHeader().setForeground(Color.WHITE);
-        table.setSelectionBackground(new Color(214, 234, 248));
         table.getColumnModel().getColumn(0).setMaxWidth(50);
 
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(SwingConstants.CENTER);
+        DefaultTableCellRenderer centerRenderer = TableStyler.createCenterRenderer();
         table.getColumnModel().getColumn(0).setCellRenderer(centerRenderer);
 
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(200, 200, 200)));
+        TableStyler.styleTable(table, scrollPane, 30);
 
         // Events
         table.getSelectionModel().addListSelectionListener(e -> {
