@@ -9,14 +9,14 @@ import sportbooking.ui.MainFrame;
 public class Main {
 
     public static void main(String[] args) {
-        // Load SQLite JDBC driver
+        // Load MySQL JDBC driver
         try {
-            Class.forName("org.sqlite.JDBC");
+            Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
             javax.swing.JOptionPane.showMessageDialog(null,
-                    "SQLite JDBC driver tidak ditemukan!\n"
-                    + "Pastikan file sqlite-jdbc-3.x.x.jar sudah ditambahkan ke Libraries project.\n\n"
-                    + "Download di: https://github.com/xerial/sqlite-jdbc/releases",
+                    "MySQL JDBC driver tidak ditemukan!\n"
+                    + "Tambahkan file mysql-connector-j-x.x.x.jar ke Libraries project.\n\n"
+                    + "Contoh nama file: mysql-connector-j-9.3.0.jar",
                     "Driver Error", javax.swing.JOptionPane.ERROR_MESSAGE);
             System.exit(1);
         }
