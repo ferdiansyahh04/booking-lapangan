@@ -173,8 +173,8 @@ public class MainFrame extends JFrame {
         menuLaporan.add(miLapPelanggan);
         menuLaporan.add(miLapLapangan);
 
-        // File
-        JMenu menuFile = new JMenu("File");
+        // Logout
+        JMenu menuFile = new JMenu("Logout");
         menuFile.setFont(menuFont);
         menuFile.setForeground(menuColor);
 
