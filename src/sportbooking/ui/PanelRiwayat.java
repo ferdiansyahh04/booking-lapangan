@@ -41,7 +41,7 @@ public class PanelRiwayat extends JPanel {
         JLabel lblFilter = new JLabel("Filter Status:");
         lblFilter.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        cmbFilter = new JComboBox<>(new String[]{"Semua", "Menunggu", "Selesai", "Dibatalkan"});
+        cmbFilter = new JComboBox<>(new String[]{"Semua", "menunggu", "dibayar", "selesai", "dibatalkan"});
         cmbFilter.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cmbFilter.setPreferredSize(new Dimension(150, 30));
 
@@ -100,15 +100,19 @@ public class PanelRiwayat extends JPanel {
                 if (!isSelected) {
                     String status = value != null ? value.toString() : "";
                     switch (status) {
-                        case "Menunggu":
+                        case "menunggu":
                             setBackground(new Color(252, 243, 207));
                             setForeground(new Color(211, 84, 0));
                             break;
-                        case "Selesai":
+                        case "dibayar":
+                            setBackground(new Color(214, 234, 248));
+                            setForeground(new Color(41, 128, 185));
+                            break;
+                        case "selesai":
                             setBackground(new Color(212, 239, 223));
                             setForeground(new Color(39, 174, 96));
                             break;
-                        case "Dibatalkan":
+                        case "dibatalkan":
                             setBackground(new Color(250, 219, 216));
                             setForeground(new Color(192, 57, 43));
                             break;
@@ -134,8 +138,8 @@ public class PanelRiwayat extends JPanel {
 
         // Events
         cmbFilter.addActionListener(e -> refreshData());
-        btnSelesai.addActionListener(e -> updateStatus("Selesai"));
-        btnBatalkan.addActionListener(e -> updateStatus("Dibatalkan"));
+        btnSelesai.addActionListener(e -> updateStatus("selesai", "dibayar"));
+        btnBatalkan.addActionListener(e -> updateStatus("dibatalkan", "menunggu"));
         btnHapus.addActionListener(e -> hapusReservasi());
         btnRefresh.addActionListener(e -> refreshData());
 
@@ -157,7 +161,7 @@ public class PanelRiwayat extends JPanel {
         return btn;
     }
 
-    private void updateStatus(String newStatus) {
+    private void updateStatus(String newStatus, String requiredStatus) {
         int row = table.getSelectedRow();
         if (row < 0) {
             JOptionPane.showMessageDialog(this, "Pilih reservasi terlebih dahulu!",
@@ -166,9 +170,9 @@ public class PanelRiwayat extends JPanel {
         }
 
         String currentStatus = tableModel.getValueAt(row, 9).toString();
-        if (!currentStatus.equals("Menunggu")) {
+        if (!currentStatus.equals(requiredStatus)) {
             JOptionPane.showMessageDialog(this,
-                    "Hanya reservasi dengan status 'Menunggu' yang dapat diubah!",
+                    "Hanya reservasi dengan status '" + requiredStatus + "' yang dapat diubah menjadi '" + newStatus + "'!",
                     "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }

@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS reservasi (
     jam_selesai VARCHAR(5) NOT NULL,
     durasi_jam INT NOT NULL,
     total_harga DECIMAL(12,2) NOT NULL,
-    status VARCHAR(30) NOT NULL DEFAULT 'Aktif',
+    status ENUM('menunggu', 'dibayar', 'selesai', 'dibatalkan') NOT NULL DEFAULT 'menunggu',
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_reservasi_lapangan FOREIGN KEY (lapangan_id)
         REFERENCES lapangan(id)

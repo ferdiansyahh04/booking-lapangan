@@ -99,15 +99,19 @@ public class PanelJadwal extends JPanel {
                 if (!isSelected) {
                     String status = value != null ? value.toString() : "";
                     switch (status) {
-                        case "Menunggu":
+                        case "menunggu":
                             setBackground(new Color(252, 243, 207));
                             setForeground(new Color(211, 84, 0));
                             break;
-                        case "Selesai":
+                        case "dibayar":
+                            setBackground(new Color(214, 234, 248));
+                            setForeground(new Color(41, 128, 185));
+                            break;
+                        case "selesai":
                             setBackground(new Color(212, 239, 223));
                             setForeground(new Color(39, 174, 96));
                             break;
-                        case "Dibatalkan":
+                        case "dibatalkan":
                             setBackground(new Color(250, 219, 216));
                             setForeground(new Color(192, 57, 43));
                             break;

@@ -67,7 +67,7 @@ public class DatabaseHelper {
         String sqlLapangan = "CREATE TABLE IF NOT EXISTS lapangan (id INT AUTO_INCREMENT PRIMARY KEY,nama VARCHAR(100) NOT NULL,jenis VARCHAR(50) NOT NULL,harga_per_jam DECIMAL(12,2) NOT NULL,status VARCHAR(30) NOT NULL DEFAULT 'Tersedia') ENGINE=InnoDB";
         String sqlUsers = "CREATE TABLE IF NOT EXISTS users (id INT AUTO_INCREMENT PRIMARY KEY,username VARCHAR(50) NOT NULL UNIQUE,password VARCHAR(255) NOT NULL,nama_lengkap VARCHAR(100) NOT NULL,role VARCHAR(30) NOT NULL DEFAULT 'Staff',created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB";
         String sqlPelanggan = "CREATE TABLE IF NOT EXISTS pelanggan (id INT AUTO_INCREMENT PRIMARY KEY,nama VARCHAR(100) NOT NULL,no_telepon VARCHAR(20),email VARCHAR(100),alamat VARCHAR(255),created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP) ENGINE=InnoDB";
-        String sqlReservasi = "CREATE TABLE IF NOT EXISTS reservasi (id INT AUTO_INCREMENT PRIMARY KEY,nama_pemesan VARCHAR(100) NOT NULL,no_telepon VARCHAR(20) NOT NULL,lapangan_id INT NOT NULL,tanggal VARCHAR(10) NOT NULL,jam_mulai VARCHAR(5) NOT NULL,jam_selesai VARCHAR(5) NOT NULL,durasi_jam INT NOT NULL,total_harga DECIMAL(12,2) NOT NULL,status VARCHAR(30) NOT NULL DEFAULT 'Aktif',created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT fk_reservasi_lapangan FOREIGN KEY (lapangan_id) REFERENCES lapangan(id) ON UPDATE CASCADE ON DELETE RESTRICT) ENGINE=InnoDB";
+        String sqlReservasi = "CREATE TABLE IF NOT EXISTS reservasi (id INT AUTO_INCREMENT PRIMARY KEY,nama_pemesan VARCHAR(100) NOT NULL,no_telepon VARCHAR(20) NOT NULL,lapangan_id INT NOT NULL,tanggal VARCHAR(10) NOT NULL,jam_mulai VARCHAR(5) NOT NULL,jam_selesai VARCHAR(5) NOT NULL,durasi_jam INT NOT NULL,total_harga DECIMAL(12,2) NOT NULL,status ENUM('menunggu', 'dibayar', 'selesai', 'dibatalkan') NOT NULL DEFAULT 'menunggu',created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT fk_reservasi_lapangan FOREIGN KEY (lapangan_id) REFERENCES lapangan(id) ON UPDATE CASCADE ON DELETE RESTRICT) ENGINE=InnoDB";
         String sqlPembayaran = "CREATE TABLE IF NOT EXISTS pembayaran (id INT AUTO_INCREMENT PRIMARY KEY,reservasi_id INT NOT NULL,jumlah_bayar DECIMAL(12,2) NOT NULL,metode_pembayaran VARCHAR(50) NOT NULL,tanggal_bayar VARCHAR(10) NOT NULL,keterangan VARCHAR(255),created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,CONSTRAINT fk_pembayaran_reservasi FOREIGN KEY (reservasi_id) REFERENCES reservasi(id) ON UPDATE CASCADE ON DELETE RESTRICT) ENGINE=InnoDB";
         try (Connection conn = getConnection(); Statement stmt = conn.createStatement()) {
             stmt.executeUpdate(sqlLapangan);
@@ -241,7 +241,7 @@ public class DatabaseHelper {
     }
 
     public boolean isLapanganBooked(int lapanganId, String tanggal, String jamMulai, String jamSelesai) {
-        String sql = "SELECT COUNT(*) FROM reservasi WHERE lapangan_id = ? AND tanggal = ? AND status != 'Dibatalkan' AND NOT (jam_selesai <= ? OR jam_mulai >= ?)";
+        String sql = "SELECT COUNT(*) FROM reservasi WHERE lapangan_id = ? AND tanggal = ? AND status != 'dibatalkan' AND NOT (jam_selesai <= ? OR jam_mulai >= ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, lapanganId);
             pstmt.setString(2, tanggal);
@@ -271,11 +271,11 @@ public class DatabaseHelper {
         return false;
     }
 
-    public int getTotalReservasiAktif() { return countByQuery("SELECT COUNT(*) FROM reservasi WHERE status IN ('Aktif', 'Menunggu')"); }
+    public int getTotalReservasiAktif() { return countByQuery("SELECT COUNT(*) FROM reservasi WHERE status IN ('menunggu', 'dibayar')"); }
     public int getTotalLapangan() { return countByQuery("SELECT COUNT(*) FROM lapangan"); }
 
     public double getTotalPendapatan() {
-        String sql = "SELECT COALESCE(SUM(total_harga), 0) FROM reservasi WHERE status = 'Selesai'";
+        String sql = "SELECT COALESCE(SUM(total_harga), 0) FROM reservasi WHERE status IN ('dibayar', 'selesai')";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) return rs.getDouble(1);
         } catch (SQLException e) { logError("Gagal mengambil total pendapatan", e); }
@@ -495,7 +495,7 @@ public class DatabaseHelper {
 
     public List<Reservasi> getReservasiBelumBayar() {
         List<Reservasi> list = new ArrayList<>();
-        String sql = "SELECT r.*, l.nama AS nama_lapangan, l.jenis AS jenis_lapangan FROM reservasi r JOIN lapangan l ON r.lapangan_id = l.id WHERE r.status IN ('Aktif', 'Menunggu') AND r.id NOT IN (SELECT reservasi_id FROM pembayaran) ORDER BY r.tanggal DESC, r.id DESC";
+        String sql = "SELECT r.*, l.nama AS nama_lapangan, l.jenis AS jenis_lapangan FROM reservasi r JOIN lapangan l ON r.lapangan_id = l.id WHERE r.status = 'menunggu' AND r.id NOT IN (SELECT reservasi_id FROM pembayaran) ORDER BY r.tanggal DESC, r.id DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 Reservasi res = mapReservasi(rs);
@@ -536,7 +536,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getPendapatanPerLapangan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT l.nama, l.jenis, COUNT(r.id) AS total_booking, COALESCE(SUM(r.total_harga), 0) AS total_pendapatan FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status = 'Selesai' GROUP BY l.id, l.nama, l.jenis ORDER BY total_pendapatan DESC";
+        String sql = "SELECT l.nama, l.jenis, COUNT(r.id) AS total_booking, COALESCE(SUM(r.total_harga), 0) AS total_pendapatan FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status IN ('dibayar', 'selesai') GROUP BY l.id, l.nama, l.jenis ORDER BY total_pendapatan DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);
@@ -549,7 +549,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getTopPelanggan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT nama_pemesan, no_telepon, COUNT(*) AS total_booking, SUM(total_harga) AS total_bayar FROM reservasi WHERE tanggal BETWEEN ? AND ? AND status = 'Selesai' GROUP BY nama_pemesan, no_telepon ORDER BY total_booking DESC, total_bayar DESC";
+        String sql = "SELECT nama_pemesan, no_telepon, COUNT(*) AS total_booking, SUM(total_harga) AS total_bayar FROM reservasi WHERE tanggal BETWEEN ? AND ? AND status IN ('dibayar', 'selesai') GROUP BY nama_pemesan, no_telepon ORDER BY total_booking DESC, total_bayar DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);
@@ -562,7 +562,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getPenggunaanLapangan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT l.nama, l.jenis, l.status, COUNT(r.id) AS total_booking, COALESCE(SUM(r.durasi_jam), 0) AS total_jam FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status != 'Dibatalkan' GROUP BY l.id, l.nama, l.jenis, l.status ORDER BY total_jam DESC";
+        String sql = "SELECT l.nama, l.jenis, l.status, COUNT(r.id) AS total_booking, COALESCE(SUM(r.durasi_jam), 0) AS total_jam FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status != 'dibatalkan' GROUP BY l.id, l.nama, l.jenis, l.status ORDER BY total_jam DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);

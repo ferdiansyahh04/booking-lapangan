@@ -31,7 +31,7 @@ Aplikasi desktop reservasi lapangan olahraga berbasis Java Swing untuk Futsal, B
 
 ### Fitur Unggulan
 - Validasi bentrok jadwal reservasi otomatis
-- Pewarnaan status reservasi (Menunggu, Selesai, Dibatalkan) di tabel Riwayat dan Jadwal
+- Pewarnaan status reservasi (menunggu, dibayar, selesai, dibatalkan) di tabel Riwayat dan Jadwal
 - Pembatasan Hak Akses (Role Admin & Karyawan)
 - Perhitungan Harga dan Status Pembayaran Otomatis
 
