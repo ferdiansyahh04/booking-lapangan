@@ -20,6 +20,7 @@ Aplikasi desktop reservasi lapangan olahraga berbasis Java Swing untuk Futsal, B
 ### Form Transaksi
 - Reservasi Baru
 - Riwayat Booking
+- Jadwal Lapangan
 - Pembayaran
 
 ### Laporan
@@ -27,6 +28,12 @@ Aplikasi desktop reservasi lapangan olahraga berbasis Java Swing untuk Futsal, B
 - Laporan Pendapatan
 - Laporan Pelanggan
 - Laporan Penggunaan Lapangan
+
+### Fitur Unggulan
+- Validasi bentrok jadwal reservasi otomatis
+- Pewarnaan status reservasi (Menunggu, Selesai, Dibatalkan) di tabel Riwayat dan Jadwal
+- Pembatasan Hak Akses (Role Admin & Karyawan)
+- Perhitungan Harga dan Status Pembayaran Otomatis
 
 ## Teknologi
 
@@ -59,6 +66,7 @@ SportBooking/
 |           |-- LoginFrame.java
 |           |-- MainFrame.java
 |           |-- PanelDashboard.java
+|           |-- PanelJadwal.java
 |           |-- PanelLapangan.java
 |           |-- PanelLapanganPelanggan.java
 |           |-- PanelLaporanLapangan.java
