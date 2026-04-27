@@ -19,6 +19,7 @@ public class MainFrame extends JFrame {
     private PanelPelanggan panelPelanggan;
     private PanelUser panelUser;
     private PanelPembayaran panelPembayaran;
+    private PanelJadwal panelJadwal;
     private PanelLaporanReservasi panelLaporanReservasi;
     private PanelLaporanPendapatan panelLaporanPendapatan;
     private PanelLaporanPelanggan panelLaporanPelanggan;
@@ -59,6 +60,7 @@ public class MainFrame extends JFrame {
         panelPelanggan = new PanelPelanggan(this);
         panelUser = new PanelUser(this);
         panelPembayaran = new PanelPembayaran(this);
+        panelJadwal = new PanelJadwal(this);
         panelLaporanReservasi = new PanelLaporanReservasi();
         panelLaporanPendapatan = new PanelLaporanPendapatan();
         panelLaporanPelanggan = new PanelLaporanPelanggan();
@@ -75,6 +77,7 @@ public class MainFrame extends JFrame {
             contentPanel.add(panelPelanggan, "pelanggan");
             contentPanel.add(panelUser, "user");
             contentPanel.add(panelPembayaran, "pembayaran");
+            contentPanel.add(panelJadwal, "jadwal");
             contentPanel.add(panelLaporanReservasi, "lap_reservasi");
             contentPanel.add(panelLaporanPendapatan, "lap_pendapatan");
             contentPanel.add(panelLaporanPelanggan, "lap_pelanggan");
@@ -124,7 +127,9 @@ public class MainFrame extends JFrame {
 
         menuMaster.add(miLapangan);
         menuMaster.add(miPelanggan);
-        menuMaster.add(miUser);
+        if (currentUser != null && "Admin".equalsIgnoreCase(currentUser.getRole())) {
+            menuMaster.add(miUser);
+        }
 
         // Transaksi
         JMenu menuTransaksi = new JMenu("Transaksi");
@@ -139,12 +144,17 @@ public class MainFrame extends JFrame {
         miRiwayat.setFont(itemFont);
         miRiwayat.addActionListener(e -> { panelRiwayat.refreshData(); showPanel("riwayat"); });
 
+        JMenuItem miJadwal = new JMenuItem("Jadwal Lapangan");
+        miJadwal.setFont(itemFont);
+        miJadwal.addActionListener(e -> { panelJadwal.refreshData(); showPanel("jadwal"); });
+
         JMenuItem miPembayaran = new JMenuItem("Pembayaran");
         miPembayaran.setFont(itemFont);
         miPembayaran.addActionListener(e -> { panelPembayaran.refreshData(); showPanel("pembayaran"); });
 
         menuTransaksi.add(miReservasi);
         menuTransaksi.add(miRiwayat);
+        menuTransaksi.add(miJadwal);
         menuTransaksi.add(miPembayaran);
 
         // Laporan
@@ -250,6 +260,7 @@ public class MainFrame extends JFrame {
         panelReservasi.refreshData();
         panelLapangan.refreshData();
         panelRiwayat.refreshData();
+        panelJadwal.refreshData();
         panelPembayaran.refreshData();
     }
 

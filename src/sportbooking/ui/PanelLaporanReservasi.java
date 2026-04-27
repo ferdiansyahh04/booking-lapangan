@@ -50,7 +50,7 @@ public class PanelLaporanReservasi extends JPanel {
         DateComboBoxStyler.style(cmbSampai);
         populateDates(cmbDari, -30);
         populateDates(cmbSampai, -30);
-        cmbSampai.setSelectedIndex(0);
+        cmbSampai.setSelectedIndex(cmbSampai.getItemCount() - 1);
 
         JButton btnTampilkan = createButton("Tampilkan", new Color(41, 128, 185));
         JButton btnCetak = createButton("Cetak", new Color(142, 68, 173));

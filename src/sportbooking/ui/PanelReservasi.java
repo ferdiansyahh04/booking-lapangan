@@ -355,7 +355,7 @@ public class PanelReservasi extends JPanel {
             res.setJamSelesai(jamSelesai);
             res.setDurasiJam(durasi);
             res.setTotalHarga(total);
-            res.setStatus("Aktif");
+            res.setStatus("Menunggu");
 
             if (DatabaseHelper.getInstance().insertReservasi(res)) {
                 JOptionPane.showMessageDialog(this,

@@ -241,7 +241,7 @@ public class DatabaseHelper {
     }
 
     public boolean isLapanganBooked(int lapanganId, String tanggal, String jamMulai, String jamSelesai) {
-        String sql = "SELECT COUNT(*) FROM reservasi WHERE lapangan_id = ? AND tanggal = ? AND status = 'Aktif' AND NOT (jam_selesai <= ? OR jam_mulai >= ?)";
+        String sql = "SELECT COUNT(*) FROM reservasi WHERE lapangan_id = ? AND tanggal = ? AND status != 'Dibatalkan' AND NOT (jam_selesai <= ? OR jam_mulai >= ?)";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, lapanganId);
             pstmt.setString(2, tanggal);
@@ -271,11 +271,11 @@ public class DatabaseHelper {
         return false;
     }
 
-    public int getTotalReservasiAktif() { return countByQuery("SELECT COUNT(*) FROM reservasi WHERE status = 'Aktif'"); }
+    public int getTotalReservasiAktif() { return countByQuery("SELECT COUNT(*) FROM reservasi WHERE status IN ('Aktif', 'Menunggu')"); }
     public int getTotalLapangan() { return countByQuery("SELECT COUNT(*) FROM lapangan"); }
 
     public double getTotalPendapatan() {
-        String sql = "SELECT COALESCE(SUM(total_harga), 0) FROM reservasi WHERE status IN ('Aktif', 'Selesai')";
+        String sql = "SELECT COALESCE(SUM(total_harga), 0) FROM reservasi WHERE status = 'Selesai'";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             if (rs.next()) return rs.getDouble(1);
         } catch (SQLException e) { logError("Gagal mengambil total pendapatan", e); }
@@ -495,7 +495,7 @@ public class DatabaseHelper {
 
     public List<Reservasi> getReservasiBelumBayar() {
         List<Reservasi> list = new ArrayList<>();
-        String sql = "SELECT r.*, l.nama AS nama_lapangan, l.jenis AS jenis_lapangan FROM reservasi r JOIN lapangan l ON r.lapangan_id = l.id WHERE r.status IN ('Aktif', 'Selesai') AND r.id NOT IN (SELECT reservasi_id FROM pembayaran) ORDER BY r.tanggal DESC, r.id DESC";
+        String sql = "SELECT r.*, l.nama AS nama_lapangan, l.jenis AS jenis_lapangan FROM reservasi r JOIN lapangan l ON r.lapangan_id = l.id WHERE r.status IN ('Aktif', 'Menunggu') AND r.id NOT IN (SELECT reservasi_id FROM pembayaran) ORDER BY r.tanggal DESC, r.id DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql); ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 Reservasi res = mapReservasi(rs);
@@ -536,7 +536,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getPendapatanPerLapangan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT l.nama, l.jenis, COUNT(r.id) AS total_booking, COALESCE(SUM(r.total_harga), 0) AS total_pendapatan FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status IN ('Aktif', 'Selesai') GROUP BY l.id, l.nama, l.jenis ORDER BY total_pendapatan DESC";
+        String sql = "SELECT l.nama, l.jenis, COUNT(r.id) AS total_booking, COALESCE(SUM(r.total_harga), 0) AS total_pendapatan FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status = 'Selesai' GROUP BY l.id, l.nama, l.jenis ORDER BY total_pendapatan DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);
@@ -549,7 +549,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getTopPelanggan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT nama_pemesan, no_telepon, COUNT(*) AS total_booking, SUM(total_harga) AS total_bayar FROM reservasi WHERE tanggal BETWEEN ? AND ? AND status IN ('Aktif', 'Selesai') GROUP BY nama_pemesan, no_telepon ORDER BY total_booking DESC, total_bayar DESC";
+        String sql = "SELECT nama_pemesan, no_telepon, COUNT(*) AS total_booking, SUM(total_harga) AS total_bayar FROM reservasi WHERE tanggal BETWEEN ? AND ? AND status = 'Selesai' GROUP BY nama_pemesan, no_telepon ORDER BY total_booking DESC, total_bayar DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);
@@ -562,7 +562,7 @@ public class DatabaseHelper {
 
     public List<Object[]> getPenggunaanLapangan(String dari, String sampai) {
         List<Object[]> list = new ArrayList<>();
-        String sql = "SELECT l.nama, l.jenis, l.status, COUNT(r.id) AS total_booking, COALESCE(SUM(r.durasi_jam), 0) AS total_jam FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status IN ('Aktif', 'Selesai') GROUP BY l.id, l.nama, l.jenis, l.status ORDER BY total_jam DESC";
+        String sql = "SELECT l.nama, l.jenis, l.status, COUNT(r.id) AS total_booking, COALESCE(SUM(r.durasi_jam), 0) AS total_jam FROM lapangan l LEFT JOIN reservasi r ON l.id = r.lapangan_id AND r.tanggal BETWEEN ? AND ? AND r.status != 'Dibatalkan' GROUP BY l.id, l.nama, l.jenis, l.status ORDER BY total_jam DESC";
         try (Connection conn = getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, dari);
             pstmt.setString(2, sampai);

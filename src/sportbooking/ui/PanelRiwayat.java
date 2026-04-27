@@ -41,7 +41,7 @@ public class PanelRiwayat extends JPanel {
         JLabel lblFilter = new JLabel("Filter Status:");
         lblFilter.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
-        cmbFilter = new JComboBox<>(new String[]{"Semua", "Aktif", "Selesai", "Dibatalkan"});
+        cmbFilter = new JComboBox<>(new String[]{"Semua", "Menunggu", "Selesai", "Dibatalkan"});
         cmbFilter.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         cmbFilter.setPreferredSize(new Dimension(150, 30));
 
@@ -100,13 +100,13 @@ public class PanelRiwayat extends JPanel {
                 if (!isSelected) {
                     String status = value != null ? value.toString() : "";
                     switch (status) {
-                        case "Aktif":
-                            setBackground(new Color(212, 239, 223));
-                            setForeground(new Color(30, 130, 76));
+                        case "Menunggu":
+                            setBackground(new Color(252, 243, 207));
+                            setForeground(new Color(211, 84, 0));
                             break;
                         case "Selesai":
-                            setBackground(new Color(214, 234, 248));
-                            setForeground(new Color(41, 128, 185));
+                            setBackground(new Color(212, 239, 223));
+                            setForeground(new Color(39, 174, 96));
                             break;
                         case "Dibatalkan":
                             setBackground(new Color(250, 219, 216));
@@ -166,9 +166,9 @@ public class PanelRiwayat extends JPanel {
         }
 
         String currentStatus = tableModel.getValueAt(row, 9).toString();
-        if (!currentStatus.equals("Aktif")) {
+        if (!currentStatus.equals("Menunggu")) {
             JOptionPane.showMessageDialog(this,
-                    "Hanya reservasi dengan status 'Aktif' yang dapat diubah!",
+                    "Hanya reservasi dengan status 'Menunggu' yang dapat diubah!",
                     "Peringatan", JOptionPane.WARNING_MESSAGE);
             return;
         }

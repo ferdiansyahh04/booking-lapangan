@@ -180,6 +180,7 @@ public class PanelPembayaran extends JPanel {
             p.setTanggalBayar(new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             p.setKeterangan(txtKeterangan.getText().trim());
             if (DatabaseHelper.getInstance().insertPembayaran(p)) {
+                DatabaseHelper.getInstance().updateStatusReservasi(item.reservasi.getId(), "Selesai");
                 JOptionPane.showMessageDialog(this, "Pembayaran berhasil diproses!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
                 txtKeterangan.setText("");
                 refreshData();
