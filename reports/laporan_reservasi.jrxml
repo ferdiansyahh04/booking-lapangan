@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports"
+              name="LaporanReservasi" language="java"
+              pageWidth="595" pageHeight="842"
+              columnWidth="535" leftMargin="20" rightMargin="20"
+              topMargin="30" bottomMargin="30">
+
+    <property name="ireport.encoding" value="UTF-8"/>
+
+    <parameter name="REPORT_TITLE" class="java.lang.String"/>
+    <parameter name="PERIODE_DARI" class="java.lang.String"/>
+    <parameter name="PERIODE_SAMPAI" class="java.lang.String"/>
+    <parameter name="PRINTED_DATE" class="java.util.Date"/>
+    <parameter name="PRINTED_BY" class="java.lang.String"/>
+
+    <queryString>
+        <![CDATA[
+            SELECT
+                r.id,
+                r.nama_pemesan,
+                r.no_telepon,
+                l.nama AS nama_lapangan,
+                l.jenis AS jenis_lapangan,
+                r.tanggal,
+                r.jam_mulai,
+                r.jam_selesai,
+                r.durasi_jam,
+                r.total_harga,
+                r.status
+            FROM reservasi r
+            JOIN lapangan l ON r.lapangan_id = l.id
+            WHERE r.tanggal BETWEEN $P{PERIODE_DARI} AND $P{PERIODE_SAMPAI}
+            ORDER BY r.tanggal DESC, r.jam_mulai DESC
+        ]]>
+    </queryString>
+
+    <field name="id" class="java.lang.Integer"/>
+    <field name="nama_pemesan" class="java.lang.String"/>
+    <field name="no_telepon" class="java.lang.String"/>
+    <field name="nama_lapangan" class="java.lang.String"/>
+    <field name="jenis_lapangan" class="java.lang.String"/>
+    <field name="tanggal" class="java.lang.String"/>
+    <field name="jam_mulai" class="java.lang.String"/>
+    <field name="jam_selesai" class="java.lang.String"/>
+    <field name="durasi_jam" class="java.lang.Integer"/>
+    <field name="total_harga" class="java.math.BigDecimal"/>
+    <field name="status" class="java.lang.String"/>
+
+    <background>
+        <band splitType="Stretch"/>
+    </background>
+
+    <title>
+        <band height="65">
+            <staticText>
+                <reportElement x="0" y="0" width="535" height="35"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[SPORT BOOKING SYSTEM]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="0" y="35" width="535" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[$P{REPORT_TITLE}]]></text>
+            </staticText>
+            <line>
+                <reportElement x="0" y="62" width="535" height="1"/>
+            </line>
+        </band>
+    </title>
+
+    <pageHeader>
+        <band height="35">
+            <textField>
+                <reportElement x="0" y="5" width="535" height="15"/>
+                <textElement textAlignment="Right"/>
+                <textFieldExpression><![CDATA["Dicetak: " + new java.text.SimpleDateFormat("dd MMMM yyyy, HH:mm").format($P{PRINTED_DATE})]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="0" y="20" width="535" height="15"/>
+                <textElement textAlignment="Left"/>
+                <textFieldExpression><![CDATA["Periode: " + $P{PERIODE_DARI} + " s/d " + $P{PERIODE_SAMPAI}]]></textFieldExpression>
+            </textField>
+        </band>
+    </pageHeader>
+
+    <columnHeader>
+        <band height="25">
+            <staticText>
+                <reportElement x="0" y="0" width="30" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[No]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="30" y="0" width="70" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Tanggal]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="100" y="0" width="90" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Pemesan]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="190" y="0" width="100" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Lapangan]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="290" y="0" width="60" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Waktu]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="350" y="0" width="50" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Durasi]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="400" y="0" width="70" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Total]]></text>
+            </staticText>
+            <staticText>
+                <reportElement x="470" y="0" width="65" height="25"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <text><![CDATA[Status]]></text>
+            </staticText>
+        </band>
+    </columnHeader>
+
+    <detail>
+        <band height="18">
+            <textField>
+                <reportElement x="0" y="0" width="30" height="18"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="30" y="0" width="70" height="18"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{tanggal}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="100" y="0" width="90" height="18"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nama_pemesan}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="190" y="0" width="100" height="18"/>
+                <textElement textAlignment="Left" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{nama_lapangan}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="290" y="0" width="60" height="18"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{jam_mulai} + "-" + $F{jam_selesai}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="350" y="0" width="50" height="18"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[String.valueOf($F{durasi_jam}) + " jam"]]></textFieldExpression>
+            </textField>
+            <textField pattern="#,##0">
+                <reportElement x="400" y="0" width="70" height="18"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{total_harga}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="470" y="0" width="65" height="18"/>
+                <textElement textAlignment="Center" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+            </textField>
+        </band>
+    </detail>
+
+    <summary>
+        <band height="45">
+            <line>
+                <reportElement x="0" y="0" width="535" height="1"/>
+            </line>
+            <textField>
+                <reportElement x="0" y="10" width="535" height="20"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Total Reservasi: " + $V{REPORT_COUNT}]]></textFieldExpression>
+            </textField>
+            <textField>
+                <reportElement x="0" y="30" width="535" height="15"/>
+                <textElement textAlignment="Right" verticalAlignment="Middle"/>
+                <textFieldExpression><![CDATA["Dicetak oleh: " + $P{PRINTED_BY}]]></textFieldExpression>
+            </textField>
+        </band>
+    </summary>
+</jasperReport>

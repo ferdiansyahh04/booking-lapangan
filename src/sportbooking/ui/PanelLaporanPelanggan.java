@@ -1,9 +1,11 @@
 package sportbooking.ui;
 
 import java.awt.*;
+import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -55,6 +57,7 @@ public class PanelLaporanPelanggan extends JPanel {
         JButton btnCetak = createButton("Cetak", new Color(142, 68, 173));
         JButton btnPdf = createButton("Export PDF", new Color(192, 57, 43));
         JButton btnExcel = createButton("Export Excel", new Color(39, 174, 96));
+        JButton btnJasperPdf = createButton("Jasper Report", new Color(230, 126, 34));
         txtSearch = ReportTableHelper.createSearchField();
 
         filterPanel.add(new JLabel("Dari:"));
@@ -65,6 +68,8 @@ public class PanelLaporanPelanggan extends JPanel {
         filterPanel.add(btnCetak);
         filterPanel.add(btnPdf);
         filterPanel.add(btnExcel);
+        filterPanel.add(Box.createHorizontalStrut(10));
+        filterPanel.add(btnJasperPdf);
         filterPanel.add(new JLabel("Cari:"));
         filterPanel.add(txtSearch);
 
@@ -103,6 +108,7 @@ public class PanelLaporanPelanggan extends JPanel {
         btnCetak.addActionListener(e -> cetakLaporan());
         btnPdf.addActionListener(e -> ReportExporter.exportTableToPdf(this, table, "Laporan Pelanggan"));
         btnExcel.addActionListener(e -> ReportExporter.exportTableToExcel(this, table, "Laporan Pelanggan"));
+        btnJasperPdf.addActionListener(e -> exportJasperPdf());
 
         add(filterPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
@@ -165,5 +171,36 @@ public class PanelLaporanPelanggan extends JPanel {
 
     public void refreshData() {
         tampilkanData();
+    }
+
+    // ==================== JasperReports Methods ====================
+
+    private void exportJasperPdf() {
+        try {
+            String dari = (String) cmbDari.getSelectedItem();
+            String sampai = (String) cmbSampai.getSelectedItem();
+            if (dari == null || sampai == null) {
+                JOptionPane.showMessageDialog(this, "Pilih periode terlebih dahulu!", "Peringatan", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
+            if (!JasperReportHelper.reportExists("laporan_pelanggan.jrxml")) {
+                JOptionPane.showMessageDialog(this,
+                    "Template laporan tidak ditemukan!\nLetakkan file 'laporan_pelanggan.jrxml' di folder 'reports/'",
+                    "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            Connection conn = DatabaseHelper.getInstance().getConnection();
+            Map<String, Object> params = JasperReportHelper.createParams(
+                "Laporan Pelanggan", dari, sampai);
+
+            JasperReportHelper.exportToPdf("laporan_pelanggan.jrxml", params, conn, this, "Laporan_Pelanggan");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Gagal export laporan:\n" + e.getMessage(),
+                "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
